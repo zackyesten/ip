@@ -1,48 +1,86 @@
 import java.util.Scanner;
 
 public class Zack {
+    private static final int MAX_TASKS = 100;
+    private static final String HORIZONTAL_LINE =
+            "____________________________________________________________";
+
     public static void main(String[] args) {
-        String line = "____________________________________________________________";
-        Task[] tasks = new Task[100];
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println(line);
-        System.out.println(" Hello! I'm Zack");
-        System.out.println(" What can I do for you?");
-        System.out.println(line);
+        printGreeting();
 
         while (true) {
             String command = scanner.nextLine();
-            System.out.println(line);
+            printHorizontalLine();
 
             if (command.equals("bye")) {
-                System.out.println(" Bye. Hope to see you again soon!");
-                System.out.println(line);
+                printGoodbye();
                 break;
-            } else if (command.equals("list")) {
-                System.out.println(" Here are the tasks in your list:");
-                for (int i = 0; i < taskCount; i++) {
-                    System.out.println(" " + (i + 1) + "." + tasks[i]);
-                }
-            } else if (command.startsWith("mark ")) {
-                int taskIndex = Integer.parseInt(command.substring(5)) - 1;
-                tasks[taskIndex].markAsDone();
-                System.out.println(" Nice! I've marked this task as done:");
-                System.out.println("   " + tasks[taskIndex]);
-            } else if (command.startsWith("unmark ")) {
-                int taskIndex = Integer.parseInt(command.substring(7)) - 1;
-                tasks[taskIndex].markAsNotDone();
-                System.out.println(" OK, I've marked this task as not done yet:");
-                System.out.println("   " + tasks[taskIndex]);
-            } else {
-                tasks[taskCount] = new Task(command);
-                taskCount++;
-                System.out.println(" added: " + command);
-                System.out.println(" Now you have " + taskCount + " tasks in the list.");
             }
 
-            System.out.println(line);
+            taskCount = executeCommand(command, tasks, taskCount);
+            printHorizontalLine();
         }
+    }
+
+    private static int executeCommand(String command, Task[] tasks, int taskCount) {
+        if (command.equals("list")) {
+            printTaskList(tasks, taskCount);
+        } else if (command.startsWith("mark ")) {
+            markTask(command, tasks);
+        } else if (command.startsWith("unmark ")) {
+            unmarkTask(command, tasks);
+        } else {
+            return addTask(command, tasks, taskCount);
+        }
+        return taskCount;
+    }
+
+    private static void printTaskList(Task[] tasks, int taskCount) {
+        System.out.println(" Here are the tasks in your list:");
+        for (int i = 0; i < taskCount; i++) {
+            System.out.println(" " + (i + 1) + "." + tasks[i]);
+        }
+    }
+
+    private static void markTask(String command, Task[] tasks) {
+        int taskIndex = Integer.parseInt(command.substring("mark ".length())) - 1;
+        tasks[taskIndex].markAsDone();
+        System.out.println(" Nice! I've marked this task as done:");
+        System.out.println("   " + tasks[taskIndex]);
+    }
+
+    private static void unmarkTask(String command, Task[] tasks) {
+        int taskIndex = Integer.parseInt(command.substring("unmark ".length())) - 1;
+        tasks[taskIndex].markAsNotDone();
+        System.out.println(" OK, I've marked this task as not done yet:");
+        System.out.println("   " + tasks[taskIndex]);
+    }
+
+    private static int addTask(String command, Task[] tasks, int taskCount) {
+        tasks[taskCount] = new Task(command);
+        int updatedTaskCount = taskCount + 1;
+        System.out.println(" added: " + command);
+        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
+        return updatedTaskCount;
+    }
+
+    private static void printGreeting() {
+        printHorizontalLine();
+        System.out.println(" Hello! I'm Zack");
+        System.out.println(" What can I do for you?");
+        printHorizontalLine();
+    }
+
+    private static void printGoodbye() {
+        System.out.println(" Bye. Hope to see you again soon!");
+        printHorizontalLine();
+    }
+
+    private static void printHorizontalLine() {
+        System.out.println(HORIZONTAL_LINE);
     }
 }
