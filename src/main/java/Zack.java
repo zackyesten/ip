@@ -74,14 +74,8 @@ public class Zack {
         String from = command.substring(fromIndex + " /from ".length(), toIndex);
         String to = command.substring(toIndex + " /to ".length());
 
-        tasks[taskCount] = new Event(description, from, to);
-        int updatedTaskCount = taskCount + 1;
-
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + tasks[taskCount]);
-        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
-
-        return updatedTaskCount;
+        Task event = new Event(description, from, to);
+        return addTypedTask(event, tasks, taskCount);
     }
 
     private static int addDeadline(String command, Task[] tasks, int taskCount) {
@@ -89,19 +83,18 @@ public class Zack {
         String description = command.substring("deadline ".length(), byIndex);
         String by = command.substring(byIndex + " /by ".length());
 
-        tasks[taskCount] = new Deadline(description, by);
-        int updatedTaskCount = taskCount + 1;
-
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + tasks[taskCount]);
-        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
-
-        return updatedTaskCount;
+        Task deadline = new Deadline(description, by);
+        return addTypedTask(deadline, tasks, taskCount);
     }
 
     private static int addTodo(String command, Task[] tasks, int taskCount) {
         String description = command.substring("todo ".length());
-        tasks[taskCount] = new Todo(description);
+        Task todo = new Todo(description);
+        return addTypedTask(todo, tasks, taskCount);
+    }
+
+    private static int addTypedTask(Task task, Task[] tasks, int taskCount) {
+        tasks[taskCount] = task;
         int updatedTaskCount = taskCount + 1;
 
         System.out.println(" Got it. I've added this task:");
