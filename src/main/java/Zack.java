@@ -33,6 +33,12 @@ public class Zack {
             markTask(command, tasks);
         } else if (command.startsWith("unmark ")) {
             unmarkTask(command, tasks);
+        } else if (command.startsWith("event ")) {
+            return addEvent(command, tasks, taskCount);
+        } else if (command.startsWith("deadline ")) {
+            return addDeadline(command, tasks, taskCount);
+        } else if (command.startsWith("todo ")) {
+            return addTodo(command, tasks, taskCount);
         } else {
             return addTask(command, tasks, taskCount);
         }
@@ -58,6 +64,51 @@ public class Zack {
         tasks[taskIndex].markAsNotDone();
         System.out.println(" OK, I've marked this task as not done yet:");
         System.out.println("   " + tasks[taskIndex]);
+    }
+
+    private static int addEvent(String command, Task[] tasks, int taskCount) {
+        int fromIndex = command.indexOf(" /from ");
+        int toIndex = command.indexOf(" /to ");
+
+        String description = command.substring("event ".length(), fromIndex);
+        String from = command.substring(fromIndex + " /from ".length(), toIndex);
+        String to = command.substring(toIndex + " /to ".length());
+
+        tasks[taskCount] = new Event(description, from, to);
+        int updatedTaskCount = taskCount + 1;
+
+        System.out.println(" Got it. I've added this task:");
+        System.out.println("   " + tasks[taskCount]);
+        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
+
+        return updatedTaskCount;
+    }
+
+    private static int addDeadline(String command, Task[] tasks, int taskCount) {
+        int byIndex = command.indexOf(" /by ");
+        String description = command.substring("deadline ".length(), byIndex);
+        String by = command.substring(byIndex + " /by ".length());
+
+        tasks[taskCount] = new Deadline(description, by);
+        int updatedTaskCount = taskCount + 1;
+
+        System.out.println(" Got it. I've added this task:");
+        System.out.println("   " + tasks[taskCount]);
+        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
+
+        return updatedTaskCount;
+    }
+
+    private static int addTodo(String command, Task[] tasks, int taskCount) {
+        String description = command.substring("todo ".length());
+        tasks[taskCount] = new Todo(description);
+        int updatedTaskCount = taskCount + 1;
+
+        System.out.println(" Got it. I've added this task:");
+        System.out.println("   " + tasks[taskCount]);
+        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
+
+        return updatedTaskCount;
     }
 
     private static int addTask(String command, Task[] tasks, int taskCount) {
