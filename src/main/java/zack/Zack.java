@@ -1,3 +1,5 @@
+package zack;
+
 import java.util.Scanner;
 
 public class Zack {

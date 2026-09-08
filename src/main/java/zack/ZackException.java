@@ -1,3 +1,5 @@
+package zack;
+
 /**
  * Represents an invalid command or another expected task-manager error.
  */
