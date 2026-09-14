@@ -40,6 +40,8 @@ public class Zack {
 
         if (command.equals("list")) {
             printTaskList(tasks, taskCount);
+        } else if (command.equals("delete") || command.startsWith("delete ")) {
+            return deleteTask(command, tasks);
         } else if (command.startsWith("mark ")) {
             markTask(command, tasks, taskCount);
         } else if (command.startsWith("unmark ")) {
@@ -52,7 +54,7 @@ public class Zack {
             return addTodo(command, tasks, taskCount);
         } else {
             throw new ZackException(
-                    "Unknown command. Use todo, deadline, event, list, mark, unmark, or bye.");
+                    "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.");
         }
         return taskCount;
     }
@@ -153,6 +155,21 @@ public class Zack {
         System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
 
         return updatedTaskCount;
+    }
+
+    private static int deleteTask(String command, ArrayList<Task> tasks)
+            throws ZackException {
+        if (command.equals("delete")) {
+            throw new ZackException("Please provide a task number, for example: delete 1.");
+        }
+
+        int taskIndex = parseTaskIndex(command, tasks.size());
+        Task deletedTask = tasks.remove(taskIndex);
+
+        System.out.println(" Removed this task:");
+        System.out.println("   " + deletedTask);
+        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+        return tasks.size();
     }
 
     private static void printGreeting() {
