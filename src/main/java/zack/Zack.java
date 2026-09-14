@@ -1,5 +1,6 @@
 package zack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -8,8 +9,15 @@ public class Zack {
             "____________________________________________________________";
 
     public static void main(String[] args) {
-        ArrayList<Task> tasks = new ArrayList<>();
-        int taskCount = 0;
+        Storage storage = new Storage();
+        ArrayList<Task> tasks;
+        try {
+            tasks = storage.load();
+        } catch (IOException e) {
+            System.out.println(" Cannot load data/zack.properties: " + e.getMessage());
+            return;
+        }
+        int taskCount = tasks.size();
         Scanner scanner = new Scanner(System.in);
 
         printGreeting();
@@ -25,8 +33,14 @@ public class Zack {
 
             try {
                 taskCount = executeCommand(command, tasks, taskCount);
+                if (!command.equals("list")) {
+                    storage.save(tasks);
+                }
             } catch (ZackException e) {
                 System.out.println(" " + e.getMessage());
+            } catch (IOException e) {
+                System.out.println(" Could not save changes to disk: " + e.getMessage());
+                System.out.println(" Changes remain in memory but have not been saved.");
             }
             printHorizontalLine();
         }
