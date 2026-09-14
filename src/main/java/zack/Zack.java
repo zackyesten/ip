@@ -1,14 +1,14 @@
 package zack;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Zack {
-    private static final int MAX_TASKS = 100;
     private static final String HORIZONTAL_LINE =
             "____________________________________________________________";
 
     public static void main(String[] args) {
-        Task[] tasks = new Task[MAX_TASKS];
+        ArrayList<Task> tasks = new ArrayList<>();
         int taskCount = 0;
         Scanner scanner = new Scanner(System.in);
 
@@ -32,7 +32,7 @@ public class Zack {
         }
     }
 
-    private static int executeCommand(String command, Task[] tasks, int taskCount)
+    private static int executeCommand(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         if (command.equals("todo")) {
             throw new ZackException("Please describe the todo, for example: todo read book.");
@@ -57,27 +57,27 @@ public class Zack {
         return taskCount;
     }
 
-    private static void printTaskList(Task[] tasks, int taskCount) {
+    private static void printTaskList(ArrayList<Task> tasks, int taskCount) {
         System.out.println(" Here are the tasks in your list:");
         for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + "." + tasks[i]);
+            System.out.println(" " + (i + 1) + "." + tasks.get(i));
         }
     }
 
-    private static void markTask(String command, Task[] tasks, int taskCount)
+    private static void markTask(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
-        tasks[taskIndex].markAsDone();
+        tasks.get(taskIndex).markAsDone();
         System.out.println(" Nice! I've marked this task as done:");
-        System.out.println("   " + tasks[taskIndex]);
+        System.out.println("   " + tasks.get(taskIndex));
     }
 
-    private static void unmarkTask(String command, Task[] tasks, int taskCount)
+    private static void unmarkTask(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
-        tasks[taskIndex].markAsNotDone();
+        tasks.get(taskIndex).markAsNotDone();
         System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   " + tasks[taskIndex]);
+        System.out.println("   " + tasks.get(taskIndex));
     }
 
     private static int parseTaskIndex(String command, int taskCount) throws ZackException {
@@ -95,7 +95,7 @@ public class Zack {
         return taskNumber - 1;
     }
 
-    private static int addEvent(String command, Task[] tasks, int taskCount)
+    private static int addEvent(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         int fromIndex = command.indexOf(" /from ");
         int toIndex = command.indexOf(" /to ");
@@ -115,7 +115,7 @@ public class Zack {
         return addTypedTask(event, tasks, taskCount);
     }
 
-    private static int addDeadline(String command, Task[] tasks, int taskCount)
+    private static int addDeadline(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         int byIndex = command.indexOf(" /by ");
         if (byIndex < "deadline ".length()) {
@@ -132,7 +132,7 @@ public class Zack {
         return addTypedTask(deadline, tasks, taskCount);
     }
 
-    private static int addTodo(String command, Task[] tasks, int taskCount)
+    private static int addTodo(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         String description = command.substring("todo ".length()).trim();
         if (description.isEmpty()) {
@@ -143,27 +143,15 @@ public class Zack {
         return addTypedTask(todo, tasks, taskCount);
     }
 
-    private static int addTypedTask(Task task, Task[] tasks, int taskCount)
+    private static int addTypedTask(Task task, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
-        if (taskCount >= tasks.length) {
-            throw new ZackException("The task list is full. No task was added.");
-        }
-
-        tasks[taskCount] = task;
-        int updatedTaskCount = taskCount + 1;
+        tasks.add(task);
+        int updatedTaskCount = tasks.size();
 
         System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + tasks[taskCount]);
+        System.out.println("   " + task);
         System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
 
-        return updatedTaskCount;
-    }
-
-    private static int addTask(String command, Task[] tasks, int taskCount) {
-        tasks[taskCount] = new Task(command);
-        int updatedTaskCount = taskCount + 1;
-        System.out.println(" added: " + command);
-        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
         return updatedTaskCount;
     }
 
