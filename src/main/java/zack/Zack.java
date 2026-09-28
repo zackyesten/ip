@@ -1,16 +1,15 @@
 package zack;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Zack {
     private static final Ui ui = new Ui();
 
     public static void main(String[] args) {
         Storage storage = new Storage();
-        ArrayList<Task> tasks;
+        TaskList tasks;
         try {
-            tasks = storage.load();
+            tasks = new TaskList(storage.load());
         } catch (IOException e) {
             ui.showMessage(" Cannot load data/zack.properties: " + e.getMessage());
             return;
@@ -31,7 +30,7 @@ public class Zack {
             try {
                 taskCount = executeCommand(command, tasks, taskCount);
                 if (!command.equals("list")) {
-                    storage.save(tasks);
+                    storage.save(tasks.snapshot());
                 }
             } catch (ZackException e) {
                 ui.showMessage(" " + e.getMessage());
@@ -43,7 +42,7 @@ public class Zack {
         }
     }
 
-    private static int executeCommand(String command, ArrayList<Task> tasks, int taskCount)
+    private static int executeCommand(String command, TaskList tasks, int taskCount)
             throws ZackException {
         if (command.equals("todo")) {
             throw new ZackException("Please describe the todo, for example: todo read book.");
@@ -70,14 +69,14 @@ public class Zack {
         return taskCount;
     }
 
-    private static void printTaskList(ArrayList<Task> tasks, int taskCount) {
+    private static void printTaskList(TaskList tasks, int taskCount) {
         ui.showMessage(" Here are the tasks in your list:");
         for (int i = 0; i < taskCount; i++) {
             ui.showMessage(" " + (i + 1) + "." + tasks.get(i));
         }
     }
 
-    private static void markTask(String command, ArrayList<Task> tasks, int taskCount)
+    private static void markTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsDone();
@@ -85,7 +84,7 @@ public class Zack {
         ui.showMessage("   " + tasks.get(taskIndex));
     }
 
-    private static void unmarkTask(String command, ArrayList<Task> tasks, int taskCount)
+    private static void unmarkTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsNotDone();
@@ -108,7 +107,7 @@ public class Zack {
         return taskNumber - 1;
     }
 
-    private static int addEvent(String command, ArrayList<Task> tasks, int taskCount)
+    private static int addEvent(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int fromIndex = command.indexOf(" /from ");
         int toIndex = command.indexOf(" /to ");
@@ -128,7 +127,7 @@ public class Zack {
         return addTypedTask(event, tasks, taskCount);
     }
 
-    private static int addDeadline(String command, ArrayList<Task> tasks, int taskCount)
+    private static int addDeadline(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int byIndex = command.indexOf(" /by ");
         if (byIndex < "deadline ".length()) {
@@ -145,7 +144,7 @@ public class Zack {
         return addTypedTask(deadline, tasks, taskCount);
     }
 
-    private static int addTodo(String command, ArrayList<Task> tasks, int taskCount)
+    private static int addTodo(String command, TaskList tasks, int taskCount)
             throws ZackException {
         String description = command.substring("todo ".length()).trim();
         if (description.isEmpty()) {
@@ -156,7 +155,7 @@ public class Zack {
         return addTypedTask(todo, tasks, taskCount);
     }
 
-    private static int addTypedTask(Task task, ArrayList<Task> tasks, int taskCount)
+    private static int addTypedTask(Task task, TaskList tasks, int taskCount)
             throws ZackException {
         tasks.add(task);
         int updatedTaskCount = tasks.size();
@@ -168,7 +167,7 @@ public class Zack {
         return updatedTaskCount;
     }
 
-    private static int deleteTask(String command, ArrayList<Task> tasks)
+    private static int deleteTask(String command, TaskList tasks)
             throws ZackException {
         if (command.equals("delete")) {
             throw new ZackException("Please provide a task number, for example: delete 1.");
