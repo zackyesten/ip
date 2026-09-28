@@ -1,6 +1,35 @@
 package zack;
 
 public class Parser {
+    public static Command parse(String command, int taskCount) throws ZackException {
+        if (command.equals("todo")) {
+            throw new ZackException("Please describe the todo, for example: todo read book.");
+        }
+        if (command.equals("delete")) {
+            throw new ZackException("Please provide a task number, for example: delete 1.");
+        }
+        if (command.equals("list")) {
+            return new ListCommand();
+        } else if (command.equals("bye")) {
+            return new ExitCommand();
+        } else if (command.startsWith("delete ")) {
+            return new DeleteCommand(parseTaskIndex(command, taskCount));
+        } else if (command.startsWith("mark ")) {
+            return new MarkCommand(parseTaskIndex(command, taskCount), true);
+        } else if (command.startsWith("unmark ")) {
+            return new MarkCommand(parseTaskIndex(command, taskCount), false);
+        } else if (command.startsWith("event ")) {
+            return new AddCommand(parseEvent(command));
+        } else if (command.startsWith("deadline ")) {
+            return new AddCommand(parseDeadline(command));
+        } else if (command.startsWith("todo ")) {
+            return new AddCommand(parseTodo(command));
+        } else {
+            throw new ZackException(
+                    "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.");
+        }
+    }
+
     public static int parseTaskIndex(String command, int taskCount) throws ZackException {
         String number = command.substring(command.indexOf(' ') + 1).trim();
         int taskNumber;
