@@ -57,11 +57,11 @@ public class Zack {
         } else if (command.startsWith("unmark ")) {
             unmarkTask(command, tasks, taskCount);
         } else if (command.startsWith("event ")) {
-            return addEvent(command, tasks, taskCount);
+            return addTypedTask(Parser.parseEvent(command), tasks, taskCount);
         } else if (command.startsWith("deadline ")) {
-            return addDeadline(command, tasks, taskCount);
+            return addTypedTask(Parser.parseDeadline(command), tasks, taskCount);
         } else if (command.startsWith("todo ")) {
-            return addTodo(command, tasks, taskCount);
+            return addTypedTask(Parser.parseTodo(command), tasks, taskCount);
         } else {
             throw new ZackException(
                     "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.");
@@ -78,7 +78,7 @@ public class Zack {
 
     private static void markTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
-        int taskIndex = parseTaskIndex(command, taskCount);
+        int taskIndex = Parser.parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsDone();
         ui.showMessage(" Nice! I've marked this task as done:");
         ui.showMessage("   " + tasks.get(taskIndex));
@@ -86,73 +86,10 @@ public class Zack {
 
     private static void unmarkTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
-        int taskIndex = parseTaskIndex(command, taskCount);
+        int taskIndex = Parser.parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsNotDone();
         ui.showMessage(" OK, I've marked this task as not done yet:");
         ui.showMessage("   " + tasks.get(taskIndex));
-    }
-
-    private static int parseTaskIndex(String command, int taskCount) throws ZackException {
-        String number = command.substring(command.indexOf(' ') + 1).trim();
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            throw new ZackException("Please enter a whole task number, for example: mark 1.");
-        }
-
-        if (taskNumber < 1 || taskNumber > taskCount) {
-            throw new ZackException("There is no task with that number. Use list to check.");
-        }
-        return taskNumber - 1;
-    }
-
-    private static int addEvent(String command, TaskList tasks, int taskCount)
-            throws ZackException {
-        int fromIndex = command.indexOf(" /from ");
-        int toIndex = command.indexOf(" /to ");
-        if (fromIndex < "event ".length()
-                || toIndex < fromIndex + " /from ".length()) {
-            throw new ZackException("Use: event DESCRIPTION /from START /to END.");
-        }
-
-        String description = command.substring("event ".length(), fromIndex).trim();
-        String from = command.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String to = command.substring(toIndex + " /to ".length()).trim();
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new ZackException("An event needs a description, a start time, and an end time.");
-        }
-
-        Task event = new Event(description, from, to);
-        return addTypedTask(event, tasks, taskCount);
-    }
-
-    private static int addDeadline(String command, TaskList tasks, int taskCount)
-            throws ZackException {
-        int byIndex = command.indexOf(" /by ");
-        if (byIndex < "deadline ".length()) {
-            throw new ZackException("Use: deadline DESCRIPTION /by TIME.");
-        }
-
-        String description = command.substring("deadline ".length(), byIndex).trim();
-        String by = command.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            throw new ZackException("A deadline needs both a description and a time.");
-        }
-
-        Task deadline = new Deadline(description, by);
-        return addTypedTask(deadline, tasks, taskCount);
-    }
-
-    private static int addTodo(String command, TaskList tasks, int taskCount)
-            throws ZackException {
-        String description = command.substring("todo ".length()).trim();
-        if (description.isEmpty()) {
-            throw new ZackException("Please describe the todo, for example: todo read book.");
-        }
-
-        Task todo = new Todo(description);
-        return addTypedTask(todo, tasks, taskCount);
     }
 
     private static int addTypedTask(Task task, TaskList tasks, int taskCount)
@@ -173,7 +110,7 @@ public class Zack {
             throw new ZackException("Please provide a task number, for example: delete 1.");
         }
 
-        int taskIndex = parseTaskIndex(command, tasks.size());
+        int taskIndex = Parser.parseTaskIndex(command, tasks.size());
         Task deletedTask = tasks.remove(taskIndex);
 
         ui.showMessage(" Removed this task:");
