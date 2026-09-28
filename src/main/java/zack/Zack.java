@@ -23,7 +23,8 @@ public class Zack {
             printHorizontalLine();
 
             if (command.equals("bye")) {
-                printGoodbye();
+                new ExitCommand().execute(tasks, ui);
+                printHorizontalLine();
                 break;
             }
 
@@ -76,17 +77,13 @@ public class Zack {
     private static void markTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int taskIndex = Parser.parseTaskIndex(command, taskCount);
-        tasks.get(taskIndex).markAsDone();
-        ui.showMessage(" Nice! I've marked this task as done:");
-        ui.showMessage("   " + tasks.get(taskIndex));
+        new MarkCommand(taskIndex, true).execute(tasks, ui);
     }
 
     private static void unmarkTask(String command, TaskList tasks, int taskCount)
             throws ZackException {
         int taskIndex = Parser.parseTaskIndex(command, taskCount);
-        tasks.get(taskIndex).markAsNotDone();
-        ui.showMessage(" OK, I've marked this task as not done yet:");
-        ui.showMessage("   " + tasks.get(taskIndex));
+        new MarkCommand(taskIndex, false).execute(tasks, ui);
     }
 
     private static int addTypedTask(Task task, TaskList tasks, int taskCount)
@@ -110,11 +107,6 @@ public class Zack {
         printHorizontalLine();
         ui.showMessage(" Hello! I'm Zack");
         ui.showMessage(" What can I do for you?");
-        printHorizontalLine();
-    }
-
-    private static void printGoodbye() {
-        ui.showMessage(" Bye. Hope to see you again soon!");
         printHorizontalLine();
     }
 
