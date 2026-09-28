@@ -94,14 +94,9 @@ public class Zack {
 
     private static int addTypedTask(Task task, TaskList tasks, int taskCount)
             throws ZackException {
-        tasks.add(task);
-        int updatedTaskCount = tasks.size();
-
-        ui.showMessage(" Got it. I've added this task:");
-        ui.showMessage("   " + task);
-        ui.showMessage(" Now you have " + updatedTaskCount + " tasks in the list.");
-
-        return updatedTaskCount;
+        Command command = new AddCommand(task);
+        command.execute(tasks, ui);
+        return tasks.size();
     }
 
     private static int deleteTask(String command, TaskList tasks)
