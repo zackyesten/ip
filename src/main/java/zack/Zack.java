@@ -1,204 +1,58 @@
 package zack;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Zack {
-    private static final String HORIZONTAL_LINE =
-            "____________________________________________________________";
+    private final Ui ui = new Ui();
 
     public static void main(String[] args) {
+        new Zack().run();
+    }
+
+    public void run() {
         Storage storage = new Storage();
-        ArrayList<Task> tasks;
+        TaskList tasks;
         try {
-            tasks = storage.load();
+            tasks = new TaskList(storage.load());
         } catch (IOException e) {
-            System.out.println(" Cannot load data/zack.properties: " + e.getMessage());
+            ui.showMessage(" Cannot load data/zack.properties: " + e.getMessage());
             return;
         }
-        int taskCount = tasks.size();
-        Scanner scanner = new Scanner(System.in);
 
         printGreeting();
 
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
+        while (ui.hasNextCommand()) {
+            String command = ui.readCommand();
             printHorizontalLine();
-
-            if (command.equals("bye")) {
-                printGoodbye();
-                break;
-            }
 
             try {
-                taskCount = executeCommand(command, tasks, taskCount);
-                if (!command.equals("list")) {
-                    storage.save(tasks);
+                Command parsedCommand = Parser.parse(command, tasks.size());
+                parsedCommand.execute(tasks, ui);
+                if (parsedCommand.isExit()) {
+                    printHorizontalLine();
+                    break;
+                }
+                if (parsedCommand.changesTasks()) {
+                    storage.save(tasks.snapshot());
                 }
             } catch (ZackException e) {
-                System.out.println(" " + e.getMessage());
+                ui.showMessage(" " + e.getMessage());
             } catch (IOException e) {
-                System.out.println(" Could not save changes to disk: " + e.getMessage());
-                System.out.println(" Changes remain in memory but have not been saved.");
+                ui.showMessage(" Could not save changes to disk: " + e.getMessage());
+                ui.showMessage(" Changes remain in memory but have not been saved.");
             }
             printHorizontalLine();
         }
     }
 
-    private static int executeCommand(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        if (command.equals("todo")) {
-            throw new ZackException("Please describe the todo, for example: todo read book.");
-        }
-
-        if (command.equals("list")) {
-            printTaskList(tasks, taskCount);
-        } else if (command.equals("delete") || command.startsWith("delete ")) {
-            return deleteTask(command, tasks);
-        } else if (command.startsWith("mark ")) {
-            markTask(command, tasks, taskCount);
-        } else if (command.startsWith("unmark ")) {
-            unmarkTask(command, tasks, taskCount);
-        } else if (command.startsWith("event ")) {
-            return addEvent(command, tasks, taskCount);
-        } else if (command.startsWith("deadline ")) {
-            return addDeadline(command, tasks, taskCount);
-        } else if (command.startsWith("todo ")) {
-            return addTodo(command, tasks, taskCount);
-        } else {
-            throw new ZackException(
-                    "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.");
-        }
-        return taskCount;
-    }
-
-    private static void printTaskList(ArrayList<Task> tasks, int taskCount) {
-        System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + "." + tasks.get(i));
-        }
-    }
-
-    private static void markTask(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        int taskIndex = parseTaskIndex(command, taskCount);
-        tasks.get(taskIndex).markAsDone();
-        System.out.println(" Nice! I've marked this task as done:");
-        System.out.println("   " + tasks.get(taskIndex));
-    }
-
-    private static void unmarkTask(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        int taskIndex = parseTaskIndex(command, taskCount);
-        tasks.get(taskIndex).markAsNotDone();
-        System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   " + tasks.get(taskIndex));
-    }
-
-    private static int parseTaskIndex(String command, int taskCount) throws ZackException {
-        String number = command.substring(command.indexOf(' ') + 1).trim();
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            throw new ZackException("Please enter a whole task number, for example: mark 1.");
-        }
-
-        if (taskNumber < 1 || taskNumber > taskCount) {
-            throw new ZackException("There is no task with that number. Use list to check.");
-        }
-        return taskNumber - 1;
-    }
-
-    private static int addEvent(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        int fromIndex = command.indexOf(" /from ");
-        int toIndex = command.indexOf(" /to ");
-        if (fromIndex < "event ".length()
-                || toIndex < fromIndex + " /from ".length()) {
-            throw new ZackException("Use: event DESCRIPTION /from START /to END.");
-        }
-
-        String description = command.substring("event ".length(), fromIndex).trim();
-        String from = command.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String to = command.substring(toIndex + " /to ".length()).trim();
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new ZackException("An event needs a description, a start time, and an end time.");
-        }
-
-        Task event = new Event(description, from, to);
-        return addTypedTask(event, tasks, taskCount);
-    }
-
-    private static int addDeadline(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        int byIndex = command.indexOf(" /by ");
-        if (byIndex < "deadline ".length()) {
-            throw new ZackException("Use: deadline DESCRIPTION /by TIME.");
-        }
-
-        String description = command.substring("deadline ".length(), byIndex).trim();
-        String by = command.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            throw new ZackException("A deadline needs both a description and a time.");
-        }
-
-        Task deadline = new Deadline(description, by);
-        return addTypedTask(deadline, tasks, taskCount);
-    }
-
-    private static int addTodo(String command, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        String description = command.substring("todo ".length()).trim();
-        if (description.isEmpty()) {
-            throw new ZackException("Please describe the todo, for example: todo read book.");
-        }
-
-        Task todo = new Todo(description);
-        return addTypedTask(todo, tasks, taskCount);
-    }
-
-    private static int addTypedTask(Task task, ArrayList<Task> tasks, int taskCount)
-            throws ZackException {
-        tasks.add(task);
-        int updatedTaskCount = tasks.size();
-
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
-
-        return updatedTaskCount;
-    }
-
-    private static int deleteTask(String command, ArrayList<Task> tasks)
-            throws ZackException {
-        if (command.equals("delete")) {
-            throw new ZackException("Please provide a task number, for example: delete 1.");
-        }
-
-        int taskIndex = parseTaskIndex(command, tasks.size());
-        Task deletedTask = tasks.remove(taskIndex);
-
-        System.out.println(" Removed this task:");
-        System.out.println("   " + deletedTask);
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-        return tasks.size();
-    }
-
-    private static void printGreeting() {
+    private void printGreeting() {
         printHorizontalLine();
-        System.out.println(" Hello! I'm Zack");
-        System.out.println(" What can I do for you?");
+        ui.showMessage(" Hello! I'm Zack");
+        ui.showMessage(" What can I do for you?");
         printHorizontalLine();
     }
 
-    private static void printGoodbye() {
-        System.out.println(" Bye. Hope to see you again soon!");
-        printHorizontalLine();
-    }
-
-    private static void printHorizontalLine() {
-        System.out.println(HORIZONTAL_LINE);
+    private void printHorizontalLine() {
+        ui.showLine();
     }
 }
