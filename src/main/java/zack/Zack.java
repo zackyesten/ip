@@ -70,10 +70,7 @@ public class Zack {
     }
 
     private static void printTaskList(TaskList tasks, int taskCount) {
-        ui.showMessage(" Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            ui.showMessage(" " + (i + 1) + "." + tasks.get(i));
-        }
+        new ListCommand().execute(tasks, ui);
     }
 
     private static void markTask(String command, TaskList tasks, int taskCount)
@@ -104,13 +101,8 @@ public class Zack {
         if (command.equals("delete")) {
             throw new ZackException("Please provide a task number, for example: delete 1.");
         }
-
         int taskIndex = Parser.parseTaskIndex(command, tasks.size());
-        Task deletedTask = tasks.remove(taskIndex);
-
-        ui.showMessage(" Removed this task:");
-        ui.showMessage("   " + deletedTask);
-        ui.showMessage(" Now you have " + tasks.size() + " tasks in the list.");
+        new DeleteCommand(taskIndex).execute(tasks, ui);
         return tasks.size();
     }
 
