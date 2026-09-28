@@ -2,11 +2,9 @@ package zack;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Zack {
-    private static final String HORIZONTAL_LINE =
-            "____________________________________________________________";
+    private static final Ui ui = new Ui();
 
     public static void main(String[] args) {
         Storage storage = new Storage();
@@ -14,16 +12,15 @@ public class Zack {
         try {
             tasks = storage.load();
         } catch (IOException e) {
-            System.out.println(" Cannot load data/zack.properties: " + e.getMessage());
+            ui.showMessage(" Cannot load data/zack.properties: " + e.getMessage());
             return;
         }
         int taskCount = tasks.size();
-        Scanner scanner = new Scanner(System.in);
 
         printGreeting();
 
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
+        while (ui.hasNextCommand()) {
+            String command = ui.readCommand();
             printHorizontalLine();
 
             if (command.equals("bye")) {
@@ -37,10 +34,10 @@ public class Zack {
                     storage.save(tasks);
                 }
             } catch (ZackException e) {
-                System.out.println(" " + e.getMessage());
+                ui.showMessage(" " + e.getMessage());
             } catch (IOException e) {
-                System.out.println(" Could not save changes to disk: " + e.getMessage());
-                System.out.println(" Changes remain in memory but have not been saved.");
+                ui.showMessage(" Could not save changes to disk: " + e.getMessage());
+                ui.showMessage(" Changes remain in memory but have not been saved.");
             }
             printHorizontalLine();
         }
@@ -74,9 +71,9 @@ public class Zack {
     }
 
     private static void printTaskList(ArrayList<Task> tasks, int taskCount) {
-        System.out.println(" Here are the tasks in your list:");
+        ui.showMessage(" Here are the tasks in your list:");
         for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + "." + tasks.get(i));
+            ui.showMessage(" " + (i + 1) + "." + tasks.get(i));
         }
     }
 
@@ -84,16 +81,16 @@ public class Zack {
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsDone();
-        System.out.println(" Nice! I've marked this task as done:");
-        System.out.println("   " + tasks.get(taskIndex));
+        ui.showMessage(" Nice! I've marked this task as done:");
+        ui.showMessage("   " + tasks.get(taskIndex));
     }
 
     private static void unmarkTask(String command, ArrayList<Task> tasks, int taskCount)
             throws ZackException {
         int taskIndex = parseTaskIndex(command, taskCount);
         tasks.get(taskIndex).markAsNotDone();
-        System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   " + tasks.get(taskIndex));
+        ui.showMessage(" OK, I've marked this task as not done yet:");
+        ui.showMessage("   " + tasks.get(taskIndex));
     }
 
     private static int parseTaskIndex(String command, int taskCount) throws ZackException {
@@ -164,9 +161,9 @@ public class Zack {
         tasks.add(task);
         int updatedTaskCount = tasks.size();
 
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        System.out.println(" Now you have " + updatedTaskCount + " tasks in the list.");
+        ui.showMessage(" Got it. I've added this task:");
+        ui.showMessage("   " + task);
+        ui.showMessage(" Now you have " + updatedTaskCount + " tasks in the list.");
 
         return updatedTaskCount;
     }
@@ -180,25 +177,25 @@ public class Zack {
         int taskIndex = parseTaskIndex(command, tasks.size());
         Task deletedTask = tasks.remove(taskIndex);
 
-        System.out.println(" Removed this task:");
-        System.out.println("   " + deletedTask);
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+        ui.showMessage(" Removed this task:");
+        ui.showMessage("   " + deletedTask);
+        ui.showMessage(" Now you have " + tasks.size() + " tasks in the list.");
         return tasks.size();
     }
 
     private static void printGreeting() {
         printHorizontalLine();
-        System.out.println(" Hello! I'm Zack");
-        System.out.println(" What can I do for you?");
+        ui.showMessage(" Hello! I'm Zack");
+        ui.showMessage(" What can I do for you?");
         printHorizontalLine();
     }
 
     private static void printGoodbye() {
-        System.out.println(" Bye. Hope to see you again soon!");
+        ui.showMessage(" Bye. Hope to see you again soon!");
         printHorizontalLine();
     }
 
     private static void printHorizontalLine() {
-        System.out.println(HORIZONTAL_LINE);
+        ui.showLine();
     }
 }
