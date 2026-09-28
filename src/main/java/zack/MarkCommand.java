@@ -21,4 +21,9 @@ public class MarkCommand extends Command {
         }
         ui.showMessage("   " + task);
     }
+
+    @Override
+    public boolean changesTasks() {
+        return true;
+    }
 }

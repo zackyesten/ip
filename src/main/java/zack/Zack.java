@@ -3,9 +3,13 @@ package zack;
 import java.io.IOException;
 
 public class Zack {
-    private static final Ui ui = new Ui();
+    private final Ui ui = new Ui();
 
     public static void main(String[] args) {
+        new Zack().run();
+    }
+
+    public void run() {
         Storage storage = new Storage();
         TaskList tasks;
         try {
@@ -21,16 +25,14 @@ public class Zack {
             String command = ui.readCommand();
             printHorizontalLine();
 
-            if (command.equals("bye")) {
-                new ExitCommand().execute(tasks, ui);
-                printHorizontalLine();
-                break;
-            }
-
             try {
                 Command parsedCommand = Parser.parse(command, tasks.size());
                 parsedCommand.execute(tasks, ui);
-                if (!command.equals("list")) {
+                if (parsedCommand.isExit()) {
+                    printHorizontalLine();
+                    break;
+                }
+                if (parsedCommand.changesTasks()) {
                     storage.save(tasks.snapshot());
                 }
             } catch (ZackException e) {
@@ -43,14 +45,14 @@ public class Zack {
         }
     }
 
-    private static void printGreeting() {
+    private void printGreeting() {
         printHorizontalLine();
         ui.showMessage(" Hello! I'm Zack");
         ui.showMessage(" What can I do for you?");
         printHorizontalLine();
     }
 
-    private static void printHorizontalLine() {
+    private void printHorizontalLine() {
         ui.showLine();
     }
 }

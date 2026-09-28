@@ -14,4 +14,9 @@ public class AddCommand extends Command {
         ui.showMessage("   " + task);
         ui.showMessage(" Now you have " + tasks.size() + " tasks in the list.");
     }
+
+    @Override
+    public boolean changesTasks() {
+        return true;
+    }
 }

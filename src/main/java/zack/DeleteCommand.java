@@ -14,4 +14,9 @@ public class DeleteCommand extends Command {
         ui.showMessage("   " + deletedTask);
         ui.showMessage(" Now you have " + tasks.size() + " tasks in the list.");
     }
+
+    @Override
+    public boolean changesTasks() {
+        return true;
+    }
 }
