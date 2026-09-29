@@ -5,13 +5,24 @@ import zack.task.TaskList;
 
 import java.io.IOException;
 
+/** Runs the task manager and coordinates commands, user interaction, and storage. */
 public class Zack {
     private final Ui ui = new Ui();
 
+    /**
+     * Starts the command-line task manager.
+     *
+     * @param args command-line arguments; currently unused
+     */
     public static void main(String[] args) {
         new Zack().run();
     }
 
+    /**
+     * Loads tasks and processes commands until exit or end of input.
+     * Saves task changes after successful modifying commands.
+     * Reports storage errors and stops startup if loading fails.
+     */
     public void run() {
         Storage storage = new Storage();
         TaskList tasks;
@@ -48,6 +59,7 @@ public class Zack {
         }
     }
 
+    /** Displays the welcome message between horizontal separators. */
     private void printGreeting() {
         printHorizontalLine();
         ui.showMessage(" Hello! I'm Zack");
@@ -55,6 +67,7 @@ public class Zack {
         printHorizontalLine();
     }
 
+    /** Asks the user interface to display a horizontal separator. */
     private void printHorizontalLine() {
         ui.showLine();
     }

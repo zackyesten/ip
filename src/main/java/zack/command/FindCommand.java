@@ -6,13 +6,20 @@ import zack.task.TaskList;
 
 import java.util.Locale;
 
+/** Finds tasks whose descriptions contain a case-insensitive search phrase. */
 public class FindCommand extends Command {
     private final String keyword;
 
+    /**
+     * Creates a case-insensitive search command.
+     *
+     * @param keyword non-empty text to find in task descriptions
+     */
     public FindCommand(String keyword) {
         this.keyword = keyword.toLowerCase(Locale.ROOT);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void execute(TaskList tasks, Ui ui) {
         ui.showMessage(" Here are the matching tasks:");

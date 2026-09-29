@@ -16,7 +16,16 @@ import zack.task.Event;
 import zack.task.Task;
 import zack.task.Todo;
 
+/** Validates user input and converts it into executable commands. */
 public class Parser {
+    /**
+     * Converts trimmed user input into an executable command.
+     *
+     * @param command command text with surrounding whitespace removed
+     * @param taskCount current number of tasks, used to validate task numbers
+     * @return parsed command
+     * @throws ZackException if the command or its arguments are invalid
+     */
     public static Command parse(String command, int taskCount) throws ZackException {
         if (command.equals("find") || command.startsWith("find ")) {
             String keyword = command.substring(4).trim();
@@ -61,6 +70,14 @@ public class Parser {
         }
     }
 
+    /**
+     * Converts a one-based task number into a validated zero-based index.
+     *
+     * @param command command text containing a task number
+     * @param taskCount current number of tasks
+     * @return zero-based task index
+     * @throws ZackException if the number is not an integer or is outside the list
+     */
     public static int parseTaskIndex(String command, int taskCount) throws ZackException {
         String number = command.substring(command.indexOf(' ') + 1).trim();
         int taskNumber;
@@ -76,6 +93,13 @@ public class Parser {
         return taskNumber - 1;
     }
 
+    /**
+     * Parses an event description and its textual start and end values.
+     *
+     * @param command command text beginning with the event keyword and a space
+     * @return newly created event
+     * @throws ZackException if required delimiters or values are missing
+     */
     public static Task parseEvent(String command) throws ZackException {
         int fromIndex = command.indexOf(" /from ");
         int toIndex = command.indexOf(" /to ");
@@ -95,6 +119,13 @@ public class Parser {
         return event;
     }
 
+    /**
+     * Parses a task description and a valid ISO deadline date.
+     *
+     * @param command command text beginning with the deadline keyword and a space
+     * @return newly created deadline task
+     * @throws ZackException if the description, delimiter, or date is invalid
+     */
     public static Task parseDeadline(String command) throws ZackException {
         int byIndex = command.indexOf(" /by ");
         if (byIndex < "deadline ".length()) {
@@ -114,6 +145,13 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the description of a task without a time constraint.
+     *
+     * @param command command text beginning with the todo keyword and a space
+     * @return newly created todo task
+     * @throws ZackException if the description is empty
+     */
     public static Task parseTodo(String command) throws ZackException {
         String description = command.substring("todo ".length()).trim();
         if (description.isEmpty()) {
