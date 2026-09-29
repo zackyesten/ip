@@ -1,4 +1,4 @@
-package zack;
+package zack.task;
 
 public class Todo extends Task {
     public Todo(String description) {

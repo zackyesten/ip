@@ -1,5 +1,8 @@
 package zack;
 
+import zack.command.Command;
+import zack.task.TaskList;
+
 import java.io.IOException;
 
 public class Zack {

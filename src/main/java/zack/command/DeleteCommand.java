@@ -1,4 +1,8 @@
-package zack;
+package zack.command;
+
+import zack.Ui;
+import zack.task.Task;
+import zack.task.TaskList;
 
 public class DeleteCommand extends Command {
     private final int taskIndex;

@@ -1,4 +1,7 @@
-package zack;
+package zack.command;
+
+import zack.Ui;
+import zack.task.TaskList;
 
 public class ListCommand extends Command {
     @Override

@@ -1,4 +1,4 @@
-package zack;
+package zack.task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

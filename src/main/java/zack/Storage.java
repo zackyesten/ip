@@ -1,5 +1,10 @@
 package zack;
 
+import zack.task.Deadline;
+import zack.task.Event;
+import zack.task.Task;
+import zack.task.Todo;
+
 import java.io.Reader;
 import java.io.IOException;
 import java.io.Writer;

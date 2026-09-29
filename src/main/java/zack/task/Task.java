@@ -1,4 +1,4 @@
-package zack;
+package zack.task;
 
 public class Task {
     private final String description;
