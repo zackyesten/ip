@@ -1,4 +1,4 @@
-package zack;
+package zack.task;
 
 import java.util.ArrayList;
 

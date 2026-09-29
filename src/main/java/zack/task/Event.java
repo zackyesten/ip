@@ -1,4 +1,4 @@
-package zack;
+package zack.task;
 
 public class Event extends Task {
     private final String from;

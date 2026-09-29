@@ -1,4 +1,9 @@
-package zack;
+package zack.command;
+
+import zack.Ui;
+import zack.task.Deadline;
+import zack.task.Task;
+import zack.task.TaskList;
 
 import java.time.LocalDate;
 
