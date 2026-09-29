@@ -5,6 +5,13 @@ import java.time.format.DateTimeParseException;
 
 public class Parser {
     public static Command parse(String command, int taskCount) throws ZackException {
+        if (command.equals("find") || command.startsWith("find ")) {
+            String keyword = command.substring(4).trim();
+            if (keyword.isEmpty()) {
+                throw new ZackException("Please provide a keyword, for example: find book.");
+            }
+            return new FindCommand(keyword);
+        }
         if (command.equals("due") || command.startsWith("due ")) {
             try {
                 LocalDate date = LocalDate.parse(command.substring(3).trim());
@@ -37,7 +44,7 @@ public class Parser {
             return new AddCommand(parseTodo(command));
         } else {
             throw new ZackException(
-                    "Unknown command. Use todo, deadline, event, list, due, mark, unmark, delete, or bye.");
+                    "Unknown command. Use todo, deadline, event, list, find, due, mark, unmark, delete, or bye.");
         }
     }
 
