@@ -7,13 +7,20 @@ import zack.task.TaskList;
 
 import java.time.LocalDate;
 
+/** Displays deadlines on a specified date using their original task numbers. */
 public class DueCommand extends Command {
     private final LocalDate date;
 
+    /**
+     * Creates a command to find deadlines on a specified date.
+     *
+     * @param date date to match against task deadlines
+     */
     public DueCommand(LocalDate date) {
         this.date = date;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void execute(TaskList tasks, Ui ui) {
         ui.showMessage(" Deadlines on " + date + ":");

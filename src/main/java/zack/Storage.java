@@ -14,9 +14,17 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Properties;
 
+/** Saves and loads tasks using a properties file in the data directory. */
 public class Storage {
     private final Path filePath = Path.of("data", "zack.properties");
 
+    /**
+     * Writes tasks to a temporary properties file, then replaces the saved file.
+     * Creates the parent directory if needed.
+     *
+     * @param tasks tasks to save in their current order
+     * @throws IOException if a task type is unsupported or writing or replacing the file fails
+     */
     public void save(ArrayList<Task> tasks) throws IOException {
         Properties data = new Properties();
         data.setProperty("task.count", Integer.toString(tasks.size()));
@@ -49,6 +57,13 @@ public class Storage {
         Files.move(temporaryFile, filePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
+    /**
+     * Loads and validates saved tasks. Creates an empty saved file if none exists.
+     * Does not overwrite an existing invalid file.
+     *
+     * @return loaded tasks in their saved order
+     * @throws IOException if reading, initialization, or data validation fails
+     */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
         if (Files.notExists(filePath)) {
@@ -84,6 +99,15 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Reconstructs one task and restores its completion status.
+     *
+     * @param data properties containing the saved tasks
+     * @param index zero-based task index in the saved data
+     * @return reconstructed task
+     * @throws IOException if required fields, task type, or completion status are invalid
+     * @throws IllegalArgumentException if the stored deadline date is invalid
+     */
     private Task readTask(Properties data, int index) throws IOException {
         String prefix = "task." + index + ".";
         String type = requireProperty(data, prefix + "type");
@@ -114,6 +138,14 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Retrieves a required property without changing its contents.
+     *
+     * @param data properties to read
+     * @param key required property name
+     * @return non-blank property value
+     * @throws IOException if the property is missing or blank
+     */
     private String requireProperty(Properties data, String key) throws IOException {
         String value = data.getProperty(key);
         if (value == null || value.isBlank()) {
