@@ -1,7 +1,18 @@
 package zack;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class Parser {
     public static Command parse(String command, int taskCount) throws ZackException {
+        if (command.equals("due") || command.startsWith("due ")) {
+            try {
+                LocalDate date = LocalDate.parse(command.substring(3).trim());
+                return new DueCommand(date);
+            } catch (DateTimeParseException e) {
+                throw new ZackException("Use: due yyyy-MM-dd, for example: due 2026-10-02.");
+            }
+        }
         if (command.equals("todo")) {
             throw new ZackException("Please describe the todo, for example: todo read book.");
         }
@@ -26,7 +37,7 @@ public class Parser {
             return new AddCommand(parseTodo(command));
         } else {
             throw new ZackException(
-                    "Unknown command. Use todo, deadline, event, list, mark, unmark, delete, or bye.");
+                    "Unknown command. Use todo, deadline, event, list, due, mark, unmark, delete, or bye.");
         }
     }
 
@@ -76,8 +87,11 @@ public class Parser {
             throw new ZackException("A deadline needs both a description and a time.");
         }
 
-        Task deadline = new Deadline(description, by);
-        return deadline;
+        try {
+            return new Deadline(description, by);
+        } catch (IllegalArgumentException e) {
+            throw new ZackException(e.getMessage());
+        }
     }
 
     public static Task parseTodo(String command) throws ZackException {

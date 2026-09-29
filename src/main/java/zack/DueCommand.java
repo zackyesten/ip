@@ -1,0 +1,26 @@
+package zack;
+
+import java.time.LocalDate;
+
+public class DueCommand extends Command {
+    private final LocalDate date;
+
+    public DueCommand(LocalDate date) {
+        this.date = date;
+    }
+
+    @Override
+    public void execute(TaskList tasks, Ui ui) {
+        ui.showMessage(" Deadlines on " + date + ":");
+        int count = 0;
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (task instanceof Deadline
+                    && ((Deadline) task).getDueDate().equals(date)) {
+                ui.showMessage(" " + (i + 1) + "." + task);
+                count++;
+            }
+        }
+        ui.showMessage(" " + count + " matching deadlines.");
+    }
+}
